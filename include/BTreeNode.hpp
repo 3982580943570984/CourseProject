@@ -2,6 +2,7 @@
 #define BTREENODE_HPP
 
 #include <vector>
+#include <string>
 #include <cstdint>
 
 struct BTreeNode {
@@ -24,6 +25,7 @@ struct BTreeNode {
                 void merge (std::int32_t index);
                 bool search (std::int32_t value);
                 void traverse ();
+                std::string visualize (std::int32_t& counter, std::string& writer);
                 bool isFull ();
 };
 

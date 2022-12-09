@@ -5,7 +5,8 @@ incdir = include_directories(
   '/home/_3982580943570984/Desktop/imgui/backends',
   '/home/_3982580943570984/Desktop/imgui/misc/cpp',
   '/home/_3982580943570984/Desktop/implot',
-  '/home/_3982580943570984/Desktop/imnodes'
+  '/home/_3982580943570984/Desktop/imnodes',
+  '/home/_3982580943570984/Desktop/stb'
 )
 
 glfw_lib = subproject('glfw').get_variable('glfw_dep')

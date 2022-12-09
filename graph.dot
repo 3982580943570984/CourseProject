@@ -1,0 +1,18 @@
+digraph g {
+node [shape = record,height=.1];
+node0[label = "<f0> |0|<f1>"];
+node1[label = "<f0> |0|<f1> |0|<f2>"];
+node2[label = "<f0> |0|<f1>"];
+"node1":f0 -> "node2"
+node3[label = "<f0> |0|<f1> |0|<f2>"];
+"node1":f1 -> "node3"
+node4[label = "<f0> |0|<f1>"];
+"node1":f2 -> "node4"
+node5[label = "<f0> |0|<f1> |0|<f2>"];
+"node1":f3 -> "node5"
+node6[label = "<f0> |0|<f1> |0|<f2> |0|<f3>"];
+"node1":f4 -> "node6"
+"node0":f0 -> "node1"
+node7[label = "<f0> |0|<f1>"];
+"node0":f1 -> "node7"
+}

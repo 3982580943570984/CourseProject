@@ -5,15 +5,60 @@
 #include "imgui_stdlib.h"
 #include "implot.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "_stb_include/stb_image.h"
+
+/*
+#include "nlohmann/json.hpp"
+#include "graphviz/cgraph.h"
+*/
+
 #include <bits/chrono.h>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
+#include <fstream>
+#include <ios>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <utility>
 #include <algorithm>
+
+bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_width, int* out_height)
+{
+    // Load from file
+    int image_width = 0;
+    int image_height = 0;
+    unsigned char* image_data = stbi_load(filename, &image_width, &image_height, NULL, 4);
+    if (image_data == NULL)
+        return false;
+
+    // Create a OpenGL texture identifier
+    GLuint image_texture;
+    glGenTextures(1, &image_texture);
+    glBindTexture(GL_TEXTURE_2D, image_texture);
+
+    // Setup filtering parameters for display
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+
+    // Upload pixels into texture
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+    stbi_image_free(image_data);
+
+    *out_texture = image_texture;
+    *out_width = image_width;
+    *out_height = image_height;
+
+    return true;
+}
 
 std::pair<bool, std::int32_t> optimalBinarySearch (const std::vector<std::int32_t> array, const std::int32_t key) {
 	if (array.empty())
@@ -66,9 +111,13 @@ void Application::Update () {
 		"", "", "", "",
 	};
 
-	static BTree tree { 6 };
+	static BTree tree { 4 };
 	static std::vector<std::int32_t> array;
 	static std::int32_t new_value { 0 };
+
+	static int my_image_width = 0;
+	static int my_image_height = 0;
+	static GLuint my_image_texture = 0;
 	
 	ImFont* font = ImGui::GetFont();
 	font->Scale = 1.2f;
@@ -135,6 +184,7 @@ void Application::Update () {
 						if (tree.search(value)) {
 							tree.modify(value, new_value);
 							result[2] = "Successful modify";
+							*std::find(array.begin(), array.end(), value) = new_value;
 						} else {
 							result[2] = "Value to be modified isnt' present in tree";
 						}
@@ -188,6 +238,20 @@ void Application::Update () {
 		ImGui::SetCursorPosX(272.f);
 		if (ImGui::Button("Visualize B-tree", ImVec2{ 480.f, 20.f })) {
 			visualize = !visualize;
+			if (visualize) {
+				std::string visualization = tree.visualize();
+
+				std::ofstream graph;
+				graph.open("../graph.dot", std::ofstream::out | std::ofstream::trunc);
+				graph << "digraph g {\n" << "node [shape = record,height=.1];\n";
+				graph << visualization;
+				graph << "}";
+				graph.close();
+				
+				std::system("dot -Tpng -O ../graph.dot");
+
+				LoadTextureFromFile("../graph.dot.png", &my_image_texture, &my_image_width, &my_image_height);
+			}
 		}
 
 		ImGui::Dummy(ImVec2{ 0.f, 10.f });
@@ -201,8 +265,9 @@ void Application::Update () {
 		ImGui::Separator();
 
 		if (visualize) {
-			if (ImPlot::BeginPlot("B-tree", ImVec2(1006.f, 440.f))) {
-				ImPlot::EndPlot();
+			if (ImGui::BeginChildFrame(++unique_id, ImVec2{ 1006.f, 300.f }, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoBackground)) {
+				ImGui::Image((void*) (intptr_t) my_image_texture, ImVec2(my_image_width, my_image_height));
+				ImGui::EndChildFrame();
 			}
 		}
 

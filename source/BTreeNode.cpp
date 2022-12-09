@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <iostream>
 #include <iterator>
+#include <ostream>
+#include <string>
 #include <vector>
 #include <utility>
 
@@ -66,6 +68,7 @@ void BTreeNode::remove(std::int32_t value) {
 	// Value to be removed is present in current node
 	if (index < keys.size() && keys[index] == value) {
 		if (leaf) {
+			std::cout << "\n---leaf---\n" << std::flush;
 			keys.erase(keys.cbegin() + index);
 		} else {
 			// Borrow max value from left sub-tree
@@ -209,6 +212,27 @@ void BTreeNode::traverse() {
 	for (auto e : childs)
 		if (e != nullptr)
 			e->traverse();
+};
+
+std::string BTreeNode::visualize (std::int32_t& counter, std::string& writer) {
+	std::string nodeId = "node" + std::to_string(counter);
+	++counter;
+	writer += nodeId + "[label = \"";
+	for (std::int32_t key { 0 }; key < keys.size(); ++key) {
+		writer += "<f" + std::to_string(key) + "> |" + std::to_string(this->keys[key]) + "|";
+		if (key == keys.size() - 1)
+			writer += "<f" + std::to_string(key + 1) + ">\"];\n";
+	}
+
+	for (std::int32_t childNumber { 0 }; auto child : childs) {
+		if (child != nullptr) {
+			std::string childId = child->visualize(counter, writer);
+			writer += "\"" + nodeId + "\":f" + std::to_string(childNumber) + " -> \"" + childId + "\"\n";
+			++childNumber;
+		}
+	}
+
+	return nodeId;
 };
 
 bool BTreeNode::isFull() {

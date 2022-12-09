@@ -4,6 +4,7 @@
 #include "include/BTreeNode.hpp"
 
 #include <cstdint>
+#include <string>
 
 class BTree {
         private:
@@ -21,7 +22,7 @@ class BTree {
                 bool search (std::int32_t value);
 
                 void traverse ();
-                void visualize();
+                std::string visualize ();
 };
 
 #endif /* BTREE_HPP */

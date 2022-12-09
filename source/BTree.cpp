@@ -2,6 +2,7 @@
 #include "include/BTreeNode.hpp"
 
 #include <queue>
+#include <string>
 
 BTree::BTree(std::int32_t order) : order(order) {};
 
@@ -13,7 +14,7 @@ BTree::~BTree() noexcept {
 			auto node = nodes.front();
 			nodes.pop();
 			for (auto child : node->childs)
-				if (child != nullptr) 
+				if (child != nullptr)
 					nodes.push(child);
 			delete node;
 		}
@@ -80,6 +81,10 @@ void BTree::traverse () {
 		root->traverse();
 };
 
-void BTree::visualize() {
-
+std::string BTree::visualize() {
+	std::string _return;
+	std::int32_t _counter = 0;
+	if (root != nullptr)
+		root->visualize(_counter, _return);
+	return _return;
 };
