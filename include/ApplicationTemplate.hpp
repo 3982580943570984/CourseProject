@@ -5,6 +5,7 @@
 #include "ImNodes.h"
 #include "ImNodesEz.h"
 
+#include <cstddef>
 #include <cstdlib>
 #include <stdio.h>
 #include <ctime>
@@ -67,6 +68,11 @@ public:
                 ImPlot::CreateContext();
 
                 ImGuiIO& io = ImGui::GetIO(); (void)io;
+                io.Fonts->AddFontFromFileTTF(
+                        "/home/_3982580943570984/JetBrains Mono Regular Nerd Font Complete Mono.ttf",
+                        22.f,
+                        NULL,
+                        io.Fonts->GetGlyphRangesCyrillic());
                 //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
                 //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 

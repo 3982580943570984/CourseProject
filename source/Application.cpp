@@ -95,16 +95,16 @@ void Application::Update () {
 	static bool visualize = false;
 
 	static std::vector<std::pair<std::string, std::int32_t>> inputRows = {
-		{ "Insert value", 0 },
-		{ "Remove value", 0 },
-		{ "Modify value", 0 },
-		{ "Search value", 0 }
+		{ u8"Вставить значение", 0 },
+		{ u8"Удалить значение", 0 },
+		{ u8"Изменить значение", 0 },
+		{ u8"Поиск значения", 0 }
 	};
 
 	static std::vector<std::int32_t> values (2);
 	static std::vector<std::pair<std::string, std::int32_t*>> outputRows = {
-		{ "Optimal Binary Search Time", &values[0] },
-		{ "B-tree Search Time", &values[1] }
+		{ u8"Время поиска в Оптимальном бинарном поиске", &values[0] },
+		{ u8"Время поиска в B-дереве", &values[1] }
 	};
 
 	static std::vector<std::string> result = {
@@ -119,9 +119,9 @@ void Application::Update () {
 	static int my_image_height = 0;
 	static GLuint my_image_texture = 0;
 	
-	ImFont* font = ImGui::GetFont();
-	font->Scale = 1.2f;
-	ImGui::PushFont(font);
+	//ImFont* font = ImGui::GetFont();
+	//font->Scale = 1.2f;
+	//ImGui::PushFont(font);
     if (ImGui::Begin("Course Project", &active, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar)) {
 		if (ImGui::BeginTable("BTree", 1, 0, ImVec2(1006.f, 180.f))) {
 
@@ -134,17 +134,17 @@ void Application::Update () {
 				ImGui::PushID(unique_id++);
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				name == "Modify value"
+				name == u8"Изменить значение"
 					? ImGui::PushItemWidth(215.f)
 					: ImGui::PushItemWidth(480.f);
 				ImGui::InputInt("", &value, 0, 0);
 				ImGui::PopID();
 				ImGui::SameLine();
 
-				if (name == "Insert value") {
-					if (ImGui::Button(name.c_str(), ImVec2{ 240.f, 20.f })) {
+				if (name == u8"Вставить значение") {
+					if (ImGui::Button(name.c_str(), ImVec2{ 240.f, 28.f })) {
 						tree.insert(value);
-						result[0] = "Successful insert";
+						result[0] = u8"Успешная вставка";
 
 						if (!array.empty()) {
 							std::size_t index { 0 };
@@ -159,52 +159,52 @@ void Application::Update () {
 					ImGui::Text("%s", result[0].c_str());
 				}
 
-				if (name == "Remove value") {
-					if (ImGui::Button(name.c_str(), ImVec2{ 240.f, 20.f })) {
+				if (name == u8"Удалить значение") {
+					if (ImGui::Button(name.c_str(), ImVec2{ 240.f, 28.f })) {
 						if (tree.search(value)) {
 							tree.remove(value);
-							result[1] = "Successful remove";
+							result[1] = u8"Успешное удаление";
 							array.erase(std::remove(array.begin(), array.end(), value), array.end());
 							tree.traverse();
 						} else {
-							result[1] = "Value isn't present in tree";
+							result[1] = u8"Удаляемое значение не находится в B-дереве";
 						}
 					}
 					ImGui::Text("%s", result[1].c_str());
 				}
 
-				if (name == "Modify value") {
-					ImGui::Text(" to ");
+				if (name == "Изменить значение") {
+					ImGui::Text(u8" в ");
 					ImGui::SameLine();
 					ImGui::PushID(unique_id++);
 					ImGui::InputInt("", &new_value, 0, 0);
 					ImGui::PopID();
 					ImGui::SameLine();
-					if (ImGui::Button(name.c_str(), ImVec2{ 240.f, 20.f })) {
+					if (ImGui::Button(name.c_str(), ImVec2{ 240.f, 28.f })) {
 						if (tree.search(value)) {
 							tree.modify(value, new_value);
-							result[2] = "Successful modify";
+							result[2] = u8"Успешное изменение";
 							*std::find(array.begin(), array.end(), value) = new_value;
 						} else {
-							result[2] = "Value to be modified isnt' present in tree";
+							result[2] = u8"Изменяемое значение не находится в B-дереве";
 						}
 					}
 					ImGui::Text("%s", result[2].c_str());
 				}
 				
-				if (name == "Search value") {
-					if (ImGui::Button(name.c_str(), ImVec2{ 240.f, 20.f })) {
+				if (name == u8"Поиск значения") {
+					if (ImGui::Button(name.c_str(), ImVec2{ 240.f, 28.f })) {
 						auto start = std::chrono::steady_clock::now();
 						tree.search(value)
-							? result[3] = "Successful search"
-							: result[3] = "Value isn't present in tree";
+							? result[3] = u8"Успешный поиск"
+							: result[3] = u8"Искомое значение не находится в B-дереве";
 						auto end = std::chrono::steady_clock::now();
-						values[0] = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+						values[1] = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
 						start = std::chrono::steady_clock::now();
 						optimalBinarySearch(array, value);
 						end = std::chrono::steady_clock::now();
-						values[1] = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+						values[0] = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 					}
 					ImGui::Text("%s", result[3].c_str());
 				}
@@ -236,7 +236,7 @@ void Application::Update () {
 
 		ImGui::Dummy(ImVec2{ 0.f, 10.f });
 		ImGui::SetCursorPosX(272.f);
-		if (ImGui::Button("Visualize B-tree", ImVec2{ 480.f, 20.f })) {
+		if (ImGui::Button(u8"Отобразить B-дерево", ImVec2{ 480.f, 28.f })) {
 			visualize = !visualize;
 			if (visualize) {
 				std::string visualization = tree.visualize();
@@ -258,7 +258,7 @@ void Application::Update () {
 		ImGui::Separator();
 		ImGui::Dummy(ImVec2{ 0.f, 10.f });
 		ImGui::SetCursorPosX(272.f);
-		if (ImGui::Button("Exit", ImVec2{ 480.f, 20.f })) {
+		if (ImGui::Button(u8"Выйти", ImVec2{ 480.f, 28.f })) {
 			std::exit(0);
 		}
 		ImGui::Dummy(ImVec2{ 0.f, 10.f });
@@ -271,7 +271,7 @@ void Application::Update () {
 			}
 		}
 
-		ImGui::PopFont();
+		//ImGui::PopFont();
 		ImGui::End();
 	}
 };
